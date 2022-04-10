@@ -1,44 +1,79 @@
-use eframe::{egui,epi};
+//refactor
+//üres textet ne lehessen megadni
+use eframe::{egui::{self},epi};
 
-struct TemplateApp {
-    // Example stuff:
-    label: String,
+struct TemplateApp  
+{
+    title: String,
+    button_label:String,
+    labels:Vec<String>
 }
 
-impl Default for TemplateApp {
+impl Default  for TemplateApp  {
     fn default() -> Self {
         Self {
-            // Example stuff:
-            label: "Hello World!".to_owned()
+            title: "Hello World!".to_owned(),
+            labels:Vec::new(),
+            button_label:String::new()
         }
     }
 }
 
-impl epi::App for TemplateApp {
+impl epi::App  for TemplateApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &epi::Frame) 
     {
-        ctx.set_debug_on_hover(true);
-        
+           
         egui::SidePanel::left("side panel")
         .show(ctx,|ui|
         {
-        });
+            if ui.button("+").clicked()
+            {
+                if !self.labels.contains(&self.button_label.trim().to_string())
+                {
+                    let text = self.button_label.trim().to_string().to_owned();
+                    if !text.is_empty()
+                    {
+                        self.labels.push(text);
+                    }
+                }
+            }
 
+            ui.add(egui::widgets::TextEdit::singleline(&mut self.button_label));
+            
+
+            ui.vertical(|ui| 
+            {   
+                ui.add(egui::widgets::Separator::default());
+                
+                for item in &self.labels
+                {
+                    if ui.button(item).clicked()
+                    {
+                        println!("{}",item);
+                    }
+                }
+                
+            });
+        });
 
         egui::CentralPanel::default().show(ctx, |ui|
         {
-            if ui.button("click me").clicked()
-            {
-                println!("yes");
-            }
+            
         });
 
+    }
+    
+    //load the states from a file
+    fn setup(&mut self,_ctx: &egui::Context,_frame: &epi::Frame,_storage: Option<&dyn epi::Storage>)
+    {
+        
     }
 
 
     fn name(&self) -> &str {
-        self.label.as_str()
+        self.title.as_str()
     }
+
 }
 
 fn main()
