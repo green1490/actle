@@ -7,18 +7,25 @@ struct TemplateApp
     labels:Vec<String>,
     learning_widget:bool,
     question:String,
-    answer:String
+    answer:String,
+    button_number:u8
 }
 
 impl Default  for TemplateApp  {
     fn default() -> Self {
         Self {
+            //The name of the app
             title: "Actle".to_owned(),
+            //holds the side panel buttons
             labels:Vec::new(),
+            //the new name of the button that will appear on the side panel
             button_label:String::new(),
             learning_widget: true,
             question:String::new(),
-            answer:String::new()
+            answer:String::new(),
+            //helps with if you are switching between learning and adding widget
+            //you won't immediately add it.
+            button_number:0
         }
     }
 }
@@ -72,27 +79,37 @@ impl epi::App  for TemplateApp {
                 if ui.button("Add new card").clicked()
                 {
                     self.learning_widget = false;
+                    if self.button_number >= 1 && (!self.question.is_empty() && !self.answer.is_empty())
+                    {
+                        println!("{} {}",self.question,self.answer);
+                    }
+                    else
+                    {
+                        self.button_number += 1;
+                    }
                 }
 
                 if ui.button("Learn cards").clicked()
                 {
                     self.learning_widget = true;
+                    self.button_number = 0;
                 }
             });
             ui.separator();
 
-            if self.learning_widget
+            if !self.learning_widget
+            {
+                ui.vertical_centered(|ui|
                 {
-                    ui.vertical_centered(|ui|
-                    {
-                        ui.text_edit_singleline(&mut self.question);
-                        ui.text_edit_multiline(&mut self.answer);
-                    });
-                }
-                else 
-                {
-                    
-                }
+                    ui.text_edit_singleline(&mut self.question);
+                    ui.text_edit_multiline(&mut self.answer);
+                });
+            }
+
+            else 
+            {
+                //implement 
+            }
         });
 
     }
