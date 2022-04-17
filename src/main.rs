@@ -49,6 +49,7 @@ impl epi::App  for TemplateApp {
                         if !text.is_empty()
                         {
                             self.labels.push(text);
+                            self.button_label = String::from("");
                         }
                     }
                 }
@@ -79,10 +80,14 @@ impl epi::App  for TemplateApp {
                 if ui.button("Add new card").clicked()
                 {
                     self.learning_widget = false;
-                    if self.button_number >= 1 && (!self.question.is_empty() && !self.answer.is_empty())
+                    
+                    if self.button_number >= 1 && 
+                    (!self.question.trim().to_string().is_empty() 
+                    && !self.answer.trim().to_string().is_empty())
                     {
-                        println!("{} {}",self.question,self.answer);
+                        println!("{} {}",self.question.trim().to_string(),self.answer.trim().to_string());
                     }
+
                     else
                     {
                         self.button_number += 1;
@@ -95,6 +100,7 @@ impl epi::App  for TemplateApp {
                     self.button_number = 0;
                 }
             });
+            
             ui.separator();
 
             if !self.learning_widget
