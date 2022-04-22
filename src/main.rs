@@ -1,5 +1,22 @@
-use eframe::{egui::{self},epi};
+use eframe::{egui,epi};
+use serde::{Serialize,Deserialize};
+use serde_json;
 
+#[derive(Serialize, Deserialize)]
+struct Card
+{
+    question:String,
+    answer:String
+}
+
+#[derive(Serialize, Deserialize)]
+struct Deck
+{
+    name: String,
+    cards: Vec<Card>
+}
+
+#[derive(Serialize, Deserialize)]
 struct TemplateApp  
 {
     title: String,
@@ -8,7 +25,9 @@ struct TemplateApp
     learning_widget:bool,
     question:String,
     answer:String,
-    button_number:u8
+    button_number:u8,
+    selected_deck:String,
+    decks:Vec<Deck>
 }
 
 impl Default  for TemplateApp  {
@@ -25,7 +44,9 @@ impl Default  for TemplateApp  {
             answer:String::new(),
             //helps with if you are switching between learning and adding widget
             //you won't immediately add it.
-            button_number:0
+            button_number:0,
+            selected_deck:String::new(),
+            decks:Vec::new()
         }
     }
 }
@@ -48,8 +69,9 @@ impl epi::App  for TemplateApp {
                         let text = self.button_label.trim().to_string().to_owned();
                         if !text.is_empty()
                         {
-                            self.labels.push(text);
+                            self.labels.push(text.to_owned());
                             self.button_label = String::from("");
+                            self.decks.push(Deck { name: text.to_owned(), cards: Vec::new() });
                         }
                     }
                 }
@@ -64,7 +86,7 @@ impl epi::App  for TemplateApp {
                 {
                     if ui.button(item).clicked()
                     {
-                        //implement
+                        self.selected_deck = item.to_owned();
                     }
                 }
                 
@@ -85,7 +107,15 @@ impl epi::App  for TemplateApp {
                     (!self.question.trim().to_string().is_empty() 
                     && !self.answer.trim().to_string().is_empty())
                     {
-                        println!("{} {}",self.question.trim().to_string(),self.answer.trim().to_string());
+                        //println!("{}",serde_json::to_string(&self).unwrap());
+                        for item in &mut self.decks
+                        {
+                            if item.name == self.selected_deck
+                            {
+                                item.cards.push(Card { question: self.question.to_owned(), answer: self.question.to_owned() });
+                                println!("{}",serde_json::to_string(&item).unwrap());
+                            }
+                        }
                     }
 
                     else
@@ -136,6 +166,6 @@ impl epi::App  for TemplateApp {
 fn main()
 {
     let app = TemplateApp::default();
-    let native_options = eframe::NativeOptions::default();
+    let native_options = eframe::NativeOptions {resizable: false,..eframe::NativeOptions::default()};
     eframe::run_native(Box::new(app), native_options)
 }
